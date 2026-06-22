@@ -1,0 +1,6 @@
+CropDiseasePred/
+streamlit_env/
+New Plant Diseases Dataset(Augmented)/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
