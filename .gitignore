@@ -1,7 +1,7 @@
 CropDiseasePred/
 streamlit_env/
-code.ipynb/
-model_epoch_05.h5/
+code.ipynb
+model_epoch_05.h5
 New Plant Diseases Dataset(Augmented)/
 __pycache__/
 *.pyc
