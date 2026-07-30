@@ -1,7 +1,7 @@
 # 🌿 Plant Disease Recognition System
 
 <p align="center">
-  <img src="assets/home.png" alt="Home Page" width="800"/>
+  <img src="assets/Home.webp" alt="Home Page" width="800"/>
 </p>
 
 <p align="center">
