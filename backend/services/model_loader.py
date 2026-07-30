@@ -1,17 +1,16 @@
-import os
-import streamlit as st
 import tensorflow as tf
 
+from config.settings import MODEL_PATH
+from backend.services.model_downloader import download_model
 
-@st.cache_resource
+_model = None
+
+
 def load_model():
-    # """
-    # Load the CNN model once and cache it.
-    # """
-    model_path = os.path.join("models", "model_epoch_05.keras")
+    global _model
 
-    # Temporary fallback while we are refactoring
-    if not os.path.exists(model_path):
-        model_path = "model_epoch_05.h5"
+    if _model is None:
+        download_model()
+        _model = tf.keras.models.load_model(MODEL_PATH)
 
-    return tf.keras.models.load_model(model_path)
+    return _model

@@ -1,8 +1,62 @@
-CropDiseasePred/
+# -------------------------
+# Virtual Environment
+# -------------------------
 streamlit_env/
-code.ipynb
-model_epoch_05.h5
+venv/
+.venv/
+
+# -------------------------
+# Dataset
+# -------------------------
 New Plant Diseases Dataset(Augmented)/
-__pycache__/
-*.pyc
+
+# -------------------------
+# Old Project
+# -------------------------
+CropDiseasePred/
+
+# -------------------------
+# Jupyter
+# -------------------------
+code.ipynb
 .ipynb_checkpoints/
+
+# -------------------------
+# Python Cache
+# -------------------------
+__pycache__/
+*.py[cod]
+
+# -------------------------
+# Environment Variables
+# -------------------------
+.env
+.streamlit/secrets.toml
+
+# -------------------------
+# Logs
+# -------------------------
+*.log
+
+# -------------------------
+# Database
+# -------------------------
+*.db
+database/
+
+# -------------------------
+# Downloaded Model
+# -------------------------
+models/
+*.h5
+
+# -------------------------
+# OS Files
+# -------------------------
+.DS_Store
+Thumbs.db
+
+# -------------------------
+# VS Code
+# -------------------------
+.vscode/

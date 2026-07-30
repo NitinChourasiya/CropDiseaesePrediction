@@ -1,0 +1,15 @@
+ .gitignore                       |  64 [32m++++++++++[m[31m-[m
+ app/app.py                       |  93 [31m----------------[m
+ backend/services/label_loader.py |   5 [32m+[m[31m-[m
+ backend/services/model_loader.py |  21 [32m++[m[31m--[m
+ backend/utils/image_loader.py    |  22 [32m++[m[31m--[m
+ database/db.py                   |   9 [32m+[m[31m-[m
+ database/history.py              |  53 [32m++++++++[m[31m-[m
+ main.py                          |  92 [31m----------------[m
+ requirements.txt                 | Bin [31m2128[m -> [32m0[m bytes
+ run.py                           | 229 [32m++++++++++++++++++[m[31m---------------------[m
+ screenshots/interface.png        | Bin [31m532187[m -> [32m0[m bytes
+ screenshots/prediction.png       | Bin [31m585956[m -> [32m0[m bytes
+ temp.py                          |   9 [31m--[m
+ tests/test_gradCam.py            |  56 [31m----------[m
+ 14 files changed, 243 insertions(+), 410 deletions(-)

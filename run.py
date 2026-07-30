@@ -1,50 +1,18 @@
 import streamlit as st
-import tensorflow as tf
+import pandas as pd
 import numpy as np
 from PIL import Image
-import pandas as pd
-
-from backend.explainability.gradcam import generate_gradcam
-from backend.explainability.visualization import overlay_heatmap
-from backend.services.model_loader import load_model
 from backend.services.label_loader import load_labels
-from backend.utils.image_loader import load_image
+from pathlib import Path
 
-from database.db import initialize_database
-from database.history import (
-    save_prediction,
-    get_prediction_history,
+from frontend.api_client import (
+    predict,
+    get_history,
+    delete_prediction,
+    delete_all_history
 )
-initialize_database()
+# http://localhost:8501
 
-def model_prediction(test_image):
-
-    model = load_model()
-
-    original_image, img_array = load_image(test_image)
-
-    prediction = model.predict(img_array, verbose=0)
-
-    result_index = np.argmax(prediction)
-
-    return (
-        model,
-        original_image,
-        img_array,
-        prediction,
-        result_index,
-    )
-
-# #Tensorflow model prediction
-# def model_prediction(test_image):
-#     model = load_model()
-#     image=tf.keras.preprocessing.image.load_img(test_image,target_size=(128,128))
-#     input_arr=tf.keras.preprocessing.image.img_to_array(image)
-#     input_arr=np.array([input_arr])
-#     prediction=model.predict(input_arr)
-#     result_index=np.argmax(prediction)
-    
-#     return result_index
 
 #SideBar
 st.sidebar.title("Dashboard")
@@ -61,8 +29,16 @@ app_mode = st.sidebar.selectbox(
 #Home page
 if(app_mode=="Home"):
     st.header("Plant Disease Recognition System")
-    image_path="C:\\Users\\Lenovo\\Documents\\CropDiseaseDetectionDataset\\New Plant Diseases Dataset(Augmented)\\Home.webp"
-    st.image(image_path)
+    image_path = Path("assets") / "Home.webp"
+    img = Image.open(image_path)
+    
+
+    
+
+    st.image(np.array(img))
+
+
+
     st.markdown("""
     Welcome to the Plant Disease Recognition System! 🌿🔍 
     
@@ -106,15 +82,6 @@ elif(app_mode=="Disease Recognition"):
     if(st.button("Show Image")):#If button is pressed then it will return true
         st.image(test_image,width=400)
     #Predict button
-    # if(st.button("Predict")):
-    #     st.snow()#st.balloons(), st.spinner()  can also be used
-    #     st.write("Our Prediction")
-    #     model, img_array, prediction, result_index = model_prediction(test_image)
-    #     # result_index = model_prediction(test_image)
-    #     #Reading Labels
-    #     class_names = load_labels()
-
-    #     st.success(f"Model is Predicting it's a {class_names[result_index]}")
     if st.button("Predict"):
 
         if test_image is None:
@@ -125,88 +92,98 @@ elif(app_mode=="Disease Recognition"):
 
         st.write("### Prediction")
 
-        model, original_image, img_array, prediction, result_index = model_prediction(test_image)
+        try:
 
-        class_names = load_labels()
+            result = predict(test_image)
 
-        st.success(f"Model is Predicting: {class_names[result_index]}")
-        #-----------------------
-        #SQ-Lite
-        confidence = float(prediction[0][result_index])
+        except RuntimeError as e:
 
-        image_name = test_image.name if test_image else None
+            st.error(str(e))
+            st.stop()
 
-        st.write("Saving prediction...")
-
-        save_prediction(
-            model_name="Custom CNN",
-            disease_name=class_names[result_index],
-            image_name=image_name,
-            confidence=confidence,
+        st.success(
+            f"Model is Predicting: {result['disease']}"
         )
-        st.write("prediction saved...")
-        #-----------------------
 
-        # -----------------------
-        # Generate Grad-CAM
-        # -----------------------
-        # heatmap = generate_gradcam(
-        #     model,
-        #     img_array,
-        #     result_index,
-        #     "conv2d_7"
-        # )   
-        # print("Heatmap:", heatmap)
-
-        # if heatmap is None:
-        #     st.error("Grad-CAM returned None")
-        #     st.stop()
-
-        # print("Heatmap shape:", heatmap.shape)
-
-        # # Convert uploaded image to numpy
-        # original_image = np.array(original_image)
-        
-        # overlay = overlay_heatmap(
-        #     original_image,
-        #     heatmap
+        # st.write(
+        #     st.metric("Confidence", f"{result['confidence']:.2%}")
         # )
-
-        # col1, col2 = st.columns(2)
-
-        # with col1:
-        #     st.subheader("Original Image")
-        #     st.image(original_image, use_container_width=True)
-
-        # with col2:
-        #     st.subheader("Grad-CAM")
-        #     st.image(overlay, use_container_width=True)
-
+        
 elif app_mode == "Prediction History":
-        st.header("Prediction History")
 
-        rows = get_prediction_history()
-        # st.markdown("Number of rows:", len(rows))
-        # st.write(rows)
-        if len(rows) == 0:
-            st.info("No predictions found.")
-        else:
+    st.header("Prediction History")
 
-            history = []
+    rows = get_history()
 
-            for row in rows:
-                history.append({
-                    "Time": row["timestamp"],
-                    "Model": row["model_name"],
-                    "Disease": row["disease_name"],
-                    "Image": row["image_name"],
-                    "Confidence": f"{row['confidence']:.2%}",
-                })
+    if len(rows) == 0:
+        st.info("No predictions found.")
 
-            df = pd.DataFrame(history)
+    else:
 
-            st.dataframe(
-                df,
-                use_container_width=True,
-                hide_index=True,
+        history = []
+
+        for row in rows:
+            history.append({
+                "ID": row["id"],
+                "Time": row["timestamp"],
+                "Model": row["model"],
+                "Disease": row["disease"],
+                "Image": row["image"],
+                "Confidence": f"{row['confidence']:.2%}",
+            })
+
+        df = pd.DataFrame(history)
+
+        # -------- Delete Selected --------
+
+        col1, col2, col3= st.columns([4, 1,1])
+
+        with col1:
+
+            selected_id = st.selectbox(
+                "Select Prediction to Delete",
+                df["ID"].tolist(),
             )
+
+        with col2:
+
+            st.write("")
+
+            if st.button("🗑 Delete Selected"):
+
+                try:
+
+                    delete_prediction(selected_id)
+
+                    st.success("Prediction deleted successfully.")
+
+                    st.rerun()
+
+                except Exception as e:
+
+                    st.error(str(e))
+
+        with col3:
+
+            st.write("")
+
+            if st.button("🗑 Delete All"):
+
+                try:
+
+                    delete_all_history()
+
+                    st.success("All history deleted successfully.")
+
+                    st.rerun()
+
+                except Exception as e:
+
+                    st.error(str(e))
+        # -------- Table --------
+
+        st.dataframe(
+            df,
+            use_container_width=True,
+            hide_index=True,
+        )

@@ -1,0 +1,39 @@
+# docker compose -f docker/docker-compose.yml up --build
+
+services:
+  fastapi:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.fastapi
+
+    container_name: crop-fastapi
+
+    ports:
+      - "8000:8000"
+
+    volumes:
+      - crop-db:/app/database
+      - ../models:/app/models
+
+    restart: no
+
+  streamlit:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.streamlit
+
+    container_name: crop-streamlit
+
+    ports:
+      - "8501:8501"
+
+    environment:
+      API_URL: http://fastapi:8000
+
+    depends_on:
+      - fastapi
+
+    restart: unless-stopped
+
+volumes:
+  crop-db:

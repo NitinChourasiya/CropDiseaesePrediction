@@ -1,8 +1,7 @@
 import json
-import streamlit as st
+from functools import lru_cache
 
-
-@st.cache_data
+@lru_cache(maxsize=1)
 def load_labels():
     """
     Load disease class labels from a JSON file.
