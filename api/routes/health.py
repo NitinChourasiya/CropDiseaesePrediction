@@ -8,6 +8,6 @@ def health():
 
     return {
         "status": "healthy",
-        "service": "Crop Disease Detection API",
+        "service": "Plant Disease Recognition API",
         "version": "1.0.0",
     }
