@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Crop Disease Detection API",
+    title="Plant Disease Recognition API",
     version="1.0.0",
     lifespan=lifespan,
 )
